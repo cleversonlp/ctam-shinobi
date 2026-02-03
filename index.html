@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CTAM SHINOBI - Clube de Taekwondo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Roboto:wght@300;400;500&display=swap">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root {
+            --primary-color: #003478; /* Azul da bandeira coreana */
+            --primary-dark: #002157;
+            --primary-light: #0047a3;
+            --secondary-color: #cd2e3a; /* Vermelho da bandeira coreana */
+            --secondary-dark: #a8242e;
+            --secondary-light: #e0434e;
+            --accent-color: #000000; /* Preto */
+            --light-color: #f5f5f5;
+            --gray-color: #757575;
+            --white-color: #ffffff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #fafafa;
+        }
+        
+        h1, h2, h3, h4, h5 {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header */
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-img {
+            width: 60px;
+            height: 60px;
+            margin-right: 15px;
+            background: linear-gradient(135deg, var(--primary-color) 50%, var(--secondary-color) 50%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            border: 2px solid white;
+        }
+        
+        .logo-text h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            color: white;
+        }
+        
+        .logo-text p {
+            font-size: 0.9rem;
+            color: var(--light-color);
+            font-weight: 300;
+        }
+        
+        .nav-menu ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-menu li {
+            margin-left: 25px;
+        }
+        
+        .nav-menu a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+            transition: color 0.3s;
+        }
+        
+        .nav-menu a:hover {
+            color: #ffcd00; /* Amarelo da bandeira coreana */
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(0, 52, 120, 0.8), rgba(205, 46, 58, 0.8)), url('');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            text-align: center;
+            padding: 120px 20px;
+        }
+        
+        .hero-content h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .hero-content p {
+            font-size: 1.3rem;
+            max-width: 700px;
+            margin: 0 auto 30px;
+            color: var(--light-color);
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            font-weight: 500;
+            border: 2px solid white;
+        }
+        
+        .cta-button:hover {
+            background-color: var(--secondary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Sections */
+        section {
+            padding: 80px 0;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+        }
+        
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            display: inline-block;
+        }
+        
+        .section-title h2:after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            margin: 15px auto;
+        }
+        
+        /* Sobre */
+        .about-content {
+            display: flex;
+            align-items: center;
+            gap: 50px;
+        }
+        
+        .about-text {
+            flex: 1;
+        }
+        
+        .about-text h3 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+        
+        .about-text p {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+        
+        .about-image {
+            flex: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 3px solid var(--primary-color);
+        }
+        
+        .about-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        /* Benefícios */
+        .benefits {
+            background-color: #f0f7ff; /* Azul muito claro */
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+        
+        .benefit-card {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+            border-top: 4px solid var(--primary-color);
+        }
+        
+        .benefit-card:hover {
+            transform: translateY(-10px);
+            border-top-color: var(--secondary-color);
+        }
+        
+        .benefit-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .benefit-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        
+        /* Formulário */
+        .form-section {
+            background-color: white;
+        }
+        
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--light-color);
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 2px solid var(--primary-color);
+        }
+        
+        .form-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--primary-color);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+        
+        .form-group input, 
+        .form-group select, 
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Roboto', sans-serif;
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus, 
+        .form-group select:focus, 
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 52, 120, 0.2);
+        }
+        
+        .submit-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            transition: background-color 0.3s;
+            font-weight: 500;
+        }
+        
+        .submit-btn:hover {
+            background-color: var(--secondary-dark);
+        }
+        
+        .whatsapp-icon {
+            font-size: 1.3rem;
+        }
+        
+        /* Localização */
+        .location-content {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .location-info {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .info-card {
+            flex: 1;
+            min-width: 250px;
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .info-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .info-card p {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .info-card i {
+            margin-right: 10px;
+            color: var(--gray-color);
+        }
+        
+        #map {
+            height: 400px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 2px solid var(--primary-color);
+        }
+        
+        /* Redes Sociais */
+        .social-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            text-align: center;
+        }
+        
+        .social-section .section-title h2 {
+            color: white;
+        }
+        
+        .social-section .section-title h2:after {
+            background: white;
+        }
+        
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .social-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
+            text-decoration: none;
+            transition: transform 0.3s;
+        }
+        
+        .social-icon:hover {
+            transform: translateY(-5px);
+        }
+        
+        .social-icon i {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .social-icon span {
+            font-size: 0.9rem;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 40px 0 20px;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+        
+        .footer-column {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .footer-column h3 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+        
+        .footer-links ul {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-links a {
+            color: #ccc;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: #ffcd00; /* Amarelo da bandeira coreana */
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+        
+        /* Responsividade */
+        @media (max-width: 992px) {
+            .about-content {
+                flex-direction: column;
+            }
+            
+            .hero-content h2 {
+                font-size: 2.5rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background-color: var(--primary-color);
+                padding: 20px;
+                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            }
+            
+            .nav-menu.active {
+                display: block;
+            }
+            
+            .nav-menu ul {
+                flex-direction: column;
+            }
+            
+            .nav-menu li {
+                margin: 10px 0;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .hero {
+                padding: 80px 20px;
+            }
+            
+            .hero-content h2 {
+                font-size: 2rem;
+            }
+            
+            .hero-content p {
+                font-size: 1.1rem;
+            }
+            
+            section {
+                padding: 60px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <div class="logo-img">
+                    <i class="fas fa-fist-raised"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>CTAM SHINOBI</h1>
+                    <p>Clube de Taekwondo</p>
+                </div>
+            </div>
+            
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <nav class="nav-menu" id="navMenu">
+                <ul>
+                    <li><a href="#home">Início</a></li>
+                    <li><a href="#about">Sobre</a></li>
+                    <li><a href="#benefits">Benefícios</a></li>
+                    <li><a href="#form">Matrícula</a></li>
+                    <li><a href="#location">Localização</a></li>
+                    <li><a href="#social">Redes Sociais</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="container hero-content">
+            <h2>CTAM SHINOBI - Arte, Disciplina e Respeito</h2>
+            <p>Faça parte do nosso clube de Taekwondo e desenvolva habilidades físicas e mentais enquanto aprende uma arte marcial tradicional coreana.</p>
+            <a href="#form" class="cta-button">Faça sua matrícula agora</a>
+        </div>
+    </section>
+
+    <!-- Sobre -->
+    <section id="about">
+        <div class="container">
+            <div class="section-title">
+                <h2>Sobre o CTAM SHINOBI</h2>
+            </div>
+            
+            <div class="about-content">
+                <div class="about-text">
+                    <h3>Formando campeões dentro e fora do tatame</h3>
+                    <p>O CTAM SHINOBI é um clube de Taekwondo dedicado ao ensino desta nobre arte marcial coreana, focando no desenvolvimento físico, mental e espiritual de nossos alunos.</p>
+                    <p>Nossa metodologia combina técnicas tradicionais com abordagens modernas de treinamento, sempre respeitando os princípios do Taekwondo: Cortesia, Integridade, Perseverança, Autocontrole e Espírito Indomável.</p>
+                    <p>Nossos instrutores são faixas pretas certificados pela Federação de Taekwondo, com ampla experiência em competições nacionais e internacionais.</p>
+                </div>
+                <div class="about-image">
+                    <img src=""
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefícios -->
+    <section class="benefits" id="benefits">
+        <div class="container">
+            <div class="section-title">
+                <h2>Benefícios do Taekwondo</h2>
+            </div>
+            
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <h3>Saúde Física</h3>
+                    <p>Melhora da capacidade cardiovascular, força muscular, flexibilidade e coordenação motora.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>Disciplina Mental</h3>
+                    <p>Desenvolvimento de foco, concentração, autoconfiança e controle emocional.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Autodefesa</h3>
+                    <p>Aprenda técnicas eficazes de defesa pessoal para situações do cotidiano.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Socialização</h3>
+                    <p>Faça parte de uma comunidade unida que valoriza o respeito e o trabalho em equipe.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Formulário de Matrícula via WhatsApp -->
+    <section class="form-section" id="form">
+        <div class="container">
+            <div class="section-title">
+                <h2>Matricule-se Agora</h2>
+            </div>
+            
+            <div class="form-container">
+                <h3 class="form-title">Preencha o formulário para se tornar um aluno CTAM SHINOBI</h3>
+                
+                <form id="registrationForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fullName">Nome Completo *</label>
+                            <input type="text" id="fullName" name="fullName" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="birthDate">Data de Nascimento *</label>
+                            <input type="date" id="birthDate" name="birthDate" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email">E-mail *</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phone">Telefone/WhatsApp *</label>
+                            <input type="tel" id="phone" name="phone" required placeholder="(11) 99999-9999">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="experience">Experiência em Artes Marciais</label>
+                        <select id="experience" name="experience">
+                            <option value="Nenhuma">Nenhuma</option>
+                            <option value="Iniciante (até 1 ano)">Iniciante (até 1 ano)</option>
+                            <option value="Intermediário (1-3 anos)">Intermediário (1-3 anos)</option>
+                            <option value="Avançado (mais de 3 anos)">Avançado (mais de 3 anos)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="schedule">Horário de Preferência *</label>
+                        <select id="schedule" name="schedule" required>
+                            <option value="">Selecione um horário</option>
+                            <option value="Manhã (8h - 12h)">Manhã (8h - 12h)</option>
+                            <option value="Tarde (14h - 18h)">Tarde (14h - 18h)</option>
+                            <option value="Noite (19h - 22h)">Noite (19h - 22h)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message">Mensagem (Opcional)</label>
+                        <textarea id="message" name="message" rows="4" placeholder="Alguma observação ou dúvida?"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        <i class="fab fa-whatsapp whatsapp-icon"></i>
+                        <span>Enviar Matrícula via WhatsApp</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Localização -->
+    <section id="location">
+        <div class="container">
+            <div class="section-title">
+                <h2>Onde Estamos</h2>
+            </div>
+            
+            <div class="location-content">
+                <div class="location-info">
+                    <div class="info-card">
+                        <h3><i class="fas fa-map-marker-alt"></i> Endereço</h3>
+                        <p><i class="fas fa-map-pin"></i> 2a Tv. Gen. Venceslau Braz Sg, 48</p>
+                        <p><i class="fas fa-city"></i> Alberto Maia</p>
+                        <p><i class="fas fa-flag"></i> Camaragibe - PE</p>
+                        <p><i class="fas fa-map"></i> CEP: 54771-422</p>
+                    </div>
+                    
+                    <div class="info-card">
+                        <h3><i class="fas fa-clock"></i> Horários de Funcionamento</h3>
+                        <p><i class="fas fa-calendar-day"></i> Segunda a Sexta: 8h às 22h</p>
+                        <p><i class="fas fa-calendar-day"></i> Sábado: 9h às 18h</p>
+                        <p><i class="fas fa-calendar-day"></i> Domingo: 9h às 13h</p>
+                        <p><i class="fas fa-info-circle"></i> Turmas em todos os horários</p>
+                    </div>
+                    
+                    <div class="info-card">
+                        <h3><i class="fas fa-phone-alt"></i> Contato</h3>
+                        <!-- <p><i class="fas fa-phone"></i> (11) 3456-7890</p>-->
+                        <p><i class="fas fa-mobile-alt"></i> (81) 98885-5809</p>
+                        <!--<p><i class="fas fa-envelope"></i> contato@ctamshinobi.com.br</p>-->
+                        <!--<p><i class="fas fa-globe"></i> www.ctamshinobi.com.br</p>-->
+                    </div>
+                </div>
+                
+                <div id="map"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Redes Sociais -->
+    <section class="social-section" id="social">
+        <div class="container">
+            <div class="section-title">
+                <h2>Siga-nos nas Redes Sociais</h2>
+            </div>
+            
+            <p style="max-width: 700px; margin: 0 auto; font-size: 1.1rem; color: #ddd;">Acompanhe nosso dia a dia, competições, eventos e dicas de treinamento através das nossas redes sociais.</p>
+            
+            <div class="social-icons">
+                <!-- Removido: Facebook e YouTube -->
+                
+                <a href="https://www.instagram.com/ctam_shinobi?igsh=cHQ4dG80bmZrdG9s" class="social-icon">
+                    <i class="fab fa-instagram"></i>
+                    <span>Instagram</span>
+                </a>
+                
+                <a href="https://wa.me/+55081988855809" class="social-icon">
+                    <i class="fab fa-whatsapp"></i>
+                    <span>WhatsApp</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>CTAM SHINOBI</h3>
+                    <p>Clube de Taekwondo dedicado à formação de cidadãos através das artes marciais. Respeito, disciplina e excelência técnica.</p>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Links Rápidos</h3>
+                    <div class="footer-links">
+                        <ul>
+                            <li><a href="#home">Início</a></li>
+                            <li><a href="#about">Sobre</a></li>
+                            <li><a href="#benefits">Benefícios</a></li>
+                            <li><a href="#form">Matrícula</a></li>
+                            <li><a href="#location">Localização</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Horários</h3>
+                    <p>Segunda a Sexta: 8h às 22h</p>
+                    <p>Sábado: 9h às 18h</p>
+                    <p>Domingo: 9h às 13h</p>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2023 CTAM SHINOBI - Clube de Taekwondo. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Menu Mobile
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navMenu = document.getElementById('navMenu');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+        });
+        
+        // Fechar menu ao clicar em um link
+        const navLinks = document.querySelectorAll('.nav-menu a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('active');
+            });
+        });
+        
+        // Mapa
+        const map = L.map('map').setView([-8.025466974382832, -35.004867286766995], 15);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        L.marker([-8.025466974382832, -35.004867286766995]).addTo(map)
+            .bindPopup('<b>CTAM SHINOBI</b><br>2a Tv. Gen. Venceslau Braz Sg, 48<br>Alberto Maia, Camaragibe - PE')
+            .openPopup();
+        
+        // Formulário para WhatsApp
+        const registrationForm = document.getElementById('registrationForm');
+        
+        // Formatar telefone
+        document.getElementById('phone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            
+            if (value.length > 10) {
+                value = value.replace(/^(\d{2})(\d{5})(\d{4}).*/, '($1) $2-$3');
+            } else if (value.length > 6) {
+                value = value.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
+            } else if (value.length > 2) {
+                value = value.replace(/^(\d{2})(\d{0,5})/, '($1) $2');
+            } else if (value.length > 0) {
+                value = value.replace(/^(\d*)/, '($1');
+            }
+            
+            e.target.value = value;
+        });
+        
+        // Envio via WhatsApp
+        registrationForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validar campos obrigatórios
+            const fullName = document.getElementById('fullName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const birthDate = document.getElementById('birthDate').value;
+            const schedule = document.getElementById('schedule').value;
+            
+            if (!fullName || !email || !phone || !birthDate || !schedule) {
+                alert('Por favor, preencha todos os campos obrigatórios (*).');
+                return;
+            }
+            
+            // Coletar todos os dados do formulário
+            const experience = document.getElementById('experience').value;
+            const message = document.getElementById('message').value.trim();
+            
+            // Número de WhatsApp do CTAM SHINOBI
+            const whatsappNumber = "+55081988855809"; // Substitua pelo número real
+
+            // Formatar a mensagem para WhatsApp
+            const whatsappMessage = `*NOVA MATRÍCULA - CTAM SHINOBI*%0A%0A` +
+                                   `*Nome:* ${fullName}%0A` +
+                                   `*Data de Nascimento:* ${birthDate}%0A` +
+                                   `*E-mail:* ${email}%0A` +
+                                   `*Telefone/WhatsApp:* ${phone}%0A` +
+                                   `*Experiência em Artes Marciais:* ${experience}%0A` +
+                                   `*Horário de Preferência:* ${schedule}%0A` +
+                                   `*Mensagem:* ${message || 'Nenhuma mensagem adicional'}`;
+            
+            // Criar URL do WhatsApp
+            const whatsappURL = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
+            
+            // Abrir WhatsApp em nova aba
+            window.open(whatsappURL, '_blank');
+            
+            // Feedback para o usuário
+            alert('Formulário preenchido com sucesso! Você será redirecionado para o WhatsApp para enviar sua matrícula.');
+            
+            // Opcional: Resetar formulário
+            registrationForm.reset();
+        });
+        
+        // Suavizar rolagem para âncoras
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

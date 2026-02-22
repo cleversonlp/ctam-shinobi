@@ -65,10 +65,12 @@
             align-items: center;
         }
         
-        .logo {
-            display: flex;
-            align-items: center;
-        }
+		.logo {
+			display: flex;
+			align-items: center;
+			text-decoration: none;
+			color: inherit;
+		}
         
         .logo-img {
             width: 60px;
@@ -594,16 +596,17 @@
 <body>
     <!-- Header -->
     <header>
-        <div class="container header-container">
-            <div class="logo">
-                <div class="logo-img">
-                    <i class="fas fa-fist-raised"></i>
-                </div>
-                <div class="logo-text">
-                    <h1>CTAM SHINOBI</h1>
-                    <p>Centro de Treino em Artes Marciais</p>
-                </div>
-            </div>
+		<div class="container header-container">
+				<a href="#home" class="logo">
+					<div class="logo-img">
+						<i class="fas fa-fist-raised"></i>
+					</div>
+					<div class="logo-text">
+						<h1>CTAM SHINOBI</h1>
+						<p>Centro de Treino em Artes Marciais</p>
+					</div>
+				</a>
+			
             
             <button class="mobile-menu-btn" id="mobileMenuBtn">
                 <i class="fas fa-bars"></i>
@@ -735,7 +738,16 @@
                             <input type="tel" id="phone" name="phone" required placeholder="(11) 99999-9999">
                         </div>
                     </div>
-                    
+					<div class="form-group">
+						<label for="modalidade">Modalidade de Interesse *</label>
+						<select id="modalidade" name="modalidade" required>
+							<option value="">Selecione uma modalidade</option>
+							<option value="Taekwondo">Taekwondo</option>
+							<option value="Kickboxing">Kickboxing</option>
+							<option value="Funcional">Funcional</option>
+							<option value="Defesa Pessoal">Defesa Pessoal</option>
+						</select>
+					</div>                  
                     <div class="form-group">
                         <label for="experience">Experiência em Artes Marciais</label>
                         <select id="experience" name="experience">
@@ -928,26 +940,33 @@
             const email = document.getElementById('email').value.trim();
             const phone = document.getElementById('phone').value.trim();
             const birthDate = document.getElementById('birthDate').value;
+			const modalidade = document.getElementById("modalidade").value;
             const schedule = document.getElementById('schedule').value;
-            
-            if (!fullName || !email || !phone || !birthDate || !schedule) {
+			           
+            if (!fullName || !email || !phone || !birthDate || ! modalidade || !schedule) {
                 alert('Por favor, preencha todos os campos obrigatórios (*).');
                 return;
             }
-            
+			
+			let formattedDate = "";
+			if (birthDate) {
+				const parts = birthDate.split("-");
+				formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+			}           
             // Coletar todos os dados do formulário
             const experience = document.getElementById('experience').value;
             const message = document.getElementById('message').value.trim();
             
             // Número de WhatsApp do CTAM SHINOBI
-            const whatsappNumber = "+55081988855809"; // Substitua pelo número real
+            const whatsappNumber = "55081988855809"; // Substitua pelo número real
 
             // Formatar a mensagem para WhatsApp
-            const whatsappMessage = `*NOVA MATRÍCULA - CTAM SHINOBI*%0A%0A` +
+            const whatsappMessage = `*Olá! Gostaria de fazer matrícula no CTAM SHINOBI.*%0A%0A` +
                                    `*Nome:* ${fullName}%0A` +
-                                   `*Data de Nascimento:* ${birthDate}%0A` +
+                                   `*Data de Nascimento:* ${formattedDate}%0A` +
                                    `*E-mail:* ${email}%0A` +
                                    `*Telefone/WhatsApp:* ${phone}%0A` +
+								   `*Modalidade:* ${modalidade}%0A` +
                                    `*Experiência em Artes Marciais:* ${experience}%0A` +
                                    `*Horário de Preferência:* ${schedule}%0A` +
                                    `*Mensagem:* ${message || 'Nenhuma mensagem adicional'}`;
